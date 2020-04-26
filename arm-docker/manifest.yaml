@@ -1,0 +1,7 @@
+image: nitishtiwari/minio:edge
+manifests:
+  -
+    image: nitishtiwari/minio:edge-arm64
+    platform:
+      architecture: arm64
+      os: linux

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:experimental
 FROM golang:1.13-alpine as builder
 
 WORKDIR /home
@@ -25,12 +26,11 @@ ENV MINIO_ACCESS_KEY_FILE=access_key \
     MINIO_KMS_MASTER_KEY_FILE=kms_master_key \
     MINIO_SSE_MASTER_KEY_FILE=sse_master_key
 
-RUN \
-     apk add --no-cache ca-certificates 'curl>7.61.0' 'su-exec>=0.2' && \
-     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-     curl https://dl.min.io/server/minio/release/linux-arm64/minio > /usr/bin/minio && \
-     chmod +x /usr/bin/minio  && \
-     chmod +x /usr/bin/docker-entrypoint.sh
+RUN apk add --no-cache ca-certificates 'curl>7.61.0' 'su-exec>=0.2'
+RUN echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+RUN curl https://dl.min.io/server/minio/release/linux-arm64/minio > /usr/bin/minio
+RUN chmod +x /usr/bin/minio
+RUN chmod +x /usr/bin/docker-entrypoint.sh
 
 EXPOSE 9000
 
