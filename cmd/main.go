@@ -17,8 +17,10 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 
 	"github.com/minio/cli"
@@ -165,6 +167,11 @@ func Main(args []string) {
 	// Set the minio app name.
 	appName := filepath.Base(args[0])
 
+	cpus := runtime.NumCPU()
+
+	fmt.Println("Number of CPUs available ", cpus)
+	fmt.Printf("CPUs = %s for MinIO Process\n", os.Getenv("GOMAXPROCS"))
+	fmt.Println("")
 	// Run the app - exit on error.
 	if err := newApp(appName).Run(args); err != nil {
 		os.Exit(1)

@@ -20,10 +20,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"path"
 	"reflect"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -205,6 +207,15 @@ func (api objectAPIHandlers) ListenBucketNotificationHandler(w http.ResponseWrit
 	ctx := newContext(r, w, "ListenBucketNotification")
 
 	defer logger.AuditLog(w, r, "ListenBucketNotification", mustGetClaimsFromToken(r))
+	var eventsSent int32
+
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			fmt.Println("Events Sent Per Second ", atomic.LoadInt32(&eventsSent))
+			atomic.StoreInt32(&eventsSent, 0)
+		}
+	}()
 
 	// Validate if bucket exists.
 	objAPI := api.ObjectAPI()
@@ -314,6 +325,7 @@ func (api objectAPIHandlers) ListenBucketNotificationHandler(w http.ResponseWrit
 		case evI := <-listenCh:
 			ev := evI.(event.Event)
 			if len(string(ev.EventName)) > 0 {
+				atomic.AddInt32(&eventsSent, 1)
 				if err := enc.Encode(struct{ Records []event.Event }{[]event.Event{ev}}); err != nil {
 					return
 				}
